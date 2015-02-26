@@ -1,0 +1,14 @@
+{
+	"name": "read-qmc",
+	"description": "Read digital nets from standard input, do QMC integration and write the result.",
+	"copyright": "Copyright (c) 2015, Ryuichi OHORI",
+	"authors": ["Ryuichi OHORI"],
+	"dependencies":
+	{
+		"digitalnet":
+		{
+			"version": "~>0.0",
+			"path": "../../"
+		}
+	}
+}

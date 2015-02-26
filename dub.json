@@ -1,0 +1,10 @@
+{
+	"name": "digitalnet",
+	"description": "A linear-algebra-based construction of point sets for quasi-Monte Carlo integration on a hypercube",
+	"copyright": "Copyright (c) 2015, Ryuichi OHORI",
+	"authors": ["Ryuichi OHORI"],
+	"license": "MIT",
+	"dependencies":
+	{
+	}
+}

@@ -1,0 +1,14 @@
+{
+	"name": "randomly-generate",
+	"description": "Generate digital nets by uniform random choice of their basis.",
+	"copyright": "Copyright (c) 2015, Ryuichi OHORI",
+	"authors": ["Ryuichi OHORI"],
+	"dependencies":
+	{
+		"digitalnet":
+		{
+			"version": "~>0.0",
+			"path": "../../"
+		}
+	}
+}

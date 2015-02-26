@@ -1,0 +1,14 @@
+{
+	"name": "read-shift-write",
+	"description": "Read a digital net from standard input, apply a random digital shift, and write to standard output.",
+	"copyright": "Copyright (c) 2015, Ryuichi OHORI",
+	"authors": ["Ryuichi OHORI"],
+	"dependencies":
+	{
+		"digitalnet":
+		{
+			"version": "~>0.0",
+			"path": "../../"
+		}
+	}
+}
