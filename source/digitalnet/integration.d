@@ -4,8 +4,9 @@ import digitalnet.axiom;
 import std.traits, std.math;
 import std.range : ElementType;
 import std.typecons : Flag;
+alias Centering = Flag!"centering";
 
-auto integral(Flag!"centering" centering=Flag!"centering".yes, S, Function)(S P, Function f)
+auto integral(Centering centering=Centering.yes, S, Function)(S P, Function f)
 	if (isPointSet!S && hasPrecision!S && hasDimensionR!S &&
 		isArray!(ParameterTypeTuple!Function) && isFloatingPoint!(ElementType!(ParameterTypeTuple!Function)))
 {
@@ -16,7 +17,7 @@ auto integral(Flag!"centering" centering=Flag!"centering".yes, S, Function)(S P,
 	return result * exp2(-cast(ptrdiff_t)P.dimensionF2);
 }
 
-auto toReals(F, Flag!"centering" centering=Flag!"centering".yes, S)(S P)
+auto toReals(F, Centering centering=Centering.yes, S)(S P)
 	if (isFloatingPoint!F && isPointSet!S && hasPrecision!S && hasDimensionR!S)
 {
 	struct R
