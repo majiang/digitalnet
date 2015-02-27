@@ -3,6 +3,7 @@ module digitalnet.implementation;
 import digitalnet.axiom;
 import std.traits, std.algorithm, std.array, std.range, std.typecons, std.random, std.exception, std.string;
 import std.conv : to;
+debug import std.stdio;
 
 static assert (isPointSet!(DigitalNet!uint));
 static assert (hasPrecision!(DigitalNet!uint));
@@ -88,6 +89,7 @@ struct ShiftedDigitalNet(U = uint, Size = GreaterInteger!U)
 		this (basis, precision);
 		this.bisectable = bisectThreshold <= this.dimensionF2;
 		this.shift = shift;
+		this.front[] = shift[];
 	}
 	ShiftedDigitalNet!(U, Size) opBinary(string op)(in U[] shift) const
 		if (op == "+")
