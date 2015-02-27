@@ -1,0 +1,14 @@
+{
+	"name": "ints-and-reals",
+	"description": "Read a digitally shifted digital net from standard input, and write points to standard output.",
+	"copyright": "Copyright (c) 2015, Ryuichi OHORI",
+	"authors": ["Ryuichi OHORI"],
+	"dependencies":
+	{
+		"digitalnet":
+		{
+			"version": "~>0.0",
+			"path": "../../"
+		}
+	}
+}
