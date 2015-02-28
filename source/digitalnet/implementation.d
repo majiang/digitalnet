@@ -114,48 +114,57 @@ struct ShiftedDigitalNet(U = uint, Size = GreaterInteger!U)
 	}
 }
 
-/// read a digital net from a string.
-DigitalNet!U toDigitalNet(U = uint)(const(char)[] x)
+private U[] getShift(U)(ref U[][] basis, in size_t dimB, in size_t dimR)
 {
-	auto
-		buf = x.strip.split(',')[0].split,
-		prec = buf[0].to!size_t,
-		dimB = buf[1].to!size_t,
-		dimR = buf[2].to!size_t;
-	buf = buf[3..$];
-	enforce(buf.length == dimB * dimR || buf.length == (dimB + 1) * dimR);
-	if (buf.length == (dimB + 1) * dimR)
+	if (basis.length == dimB)
 	{
-		import std.stdio;
-		stderr.writefln("run-time warning: ignoring shift [%(%s %)]", buf[dimB * dimR .. $]);
-		buf = buf[0 .. dimB * dimR];
+		stderr.writeln("run-time warning: add a zero shift");
+		return new U[dimR];
 	}
-	auto basis = buf.map!(to!U).array.chunks(dimR).array;
-	return DigitalNet!U(basis, Precision(prec));
+	if (basis.length == dimB + 1)
+	{
+		auto s = basis[$-1];
+		basis.length -= 1;
+		return s;
+	}
+	assert (false);
 }
 
+private U[][] noShift(U)(U[][] basis, in size_t dimB)
+{
+	if (basis.length == dimB + 1)
+	{
+		stderr.writefln("run-time warning: ignoring shift, [%(%d %)]", basis[dimB..$][0]);
+		return basis[0..$-1];
+	}
+	if (basis.length == dimB)
+		return basis;
+	assert (false);
+}
+
+
+private U[][] readDigitalNetParams(U)(const(char)[][] buf, out size_t prec, out size_t dimB, out size_t dimR)
+{
+	prec = buf[0].to!size_t;
+	dimB = buf[1].to!size_t;
+	dimR = buf[2].to!size_t;
+	return buf[3..$].map!(to!U).array.chunks(dimR).array;
+}
+
+/// Read a digital net from a string.
+DigitalNet!U toDigitalNet(U = uint)(const(char)[] x)
+{
+	size_t prec, dimB, dimR;
+	auto basis = x.strip.split(',')[0].split.readDigitalNetParams!U(prec, dimB, dimR);
+	return DigitalNet!U(noShift(basis, dimB), Precision(prec));
+}
+
+/// Read a digitally shifted digital net from a string.
 ShiftedDigitalNet!U toShiftedDigitalNet(U = uint)(const(char)[] x)
 {
-	auto
-		buf = x.strip.split(',')[0].split,
-		prec = buf[0].to!size_t,
-		dimB = buf[1].to!size_t,
-		dimR = buf[2].to!size_t;
-	buf = buf[3..$];
-	enforce(buf.length == (dimB + 1) * dimR || buf.length == dimB * dimR);
-	auto basis = buf.map!(to!U).array.chunks(dimR).array;
-	U[] shift;
-	if (buf.length == dimB * dimR)
-	{
-		import std.stdio;
-		stderr.writeln("run-time warning: add a zero shift");
-		shift = new U[dimR];
-	}
-	else
-	{
-		shift = basis[$ - 1];
-		basis = basis[0 .. $ - 1];
-	}
+	size_t prec, dimB, dimR;
+	auto basis = x.strip.split(',')[0].split.readDigitalNetParams!U(prec, dimB, dimR);
+	auto shift = getShift(basis, dimB, dimR);
 	return ShiftedDigitalNet!U(basis, shift, Precision(prec));
 }
 
