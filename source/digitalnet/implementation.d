@@ -14,6 +14,7 @@ mixin template DigitalNetFunctions(U, Size)
 {
 	const U[][] basis;
 	immutable size_t precision, dimensionF2, dimensionR;
+	immutable bool bisectable;
 	this (in U[][] basis, Precision precision = Precision(U.sizeof << 3))
 	{
 		this.basis = basis;
@@ -63,6 +64,11 @@ struct DigitalNet(U = uint, Size = GreaterInteger!U)
 	{
 		return this;
 	}
+	ShiftedDigitalNet!(U, Size)[2] bisect() const
+	{
+		auto former = ShiftedDigitalNet!(U, Size)(this.basis[1..$], new U[this.dimensionR], Precision(this.precision));
+		return [former, former + this.basis[0]];
+	}
 	alias toString = _toString;
 }
 
@@ -70,7 +76,6 @@ struct DigitalNet(U = uint, Size = GreaterInteger!U)
 struct ShiftedDigitalNet(U = uint, Size = GreaterInteger!U)
 	if (isUnsigned!U)
 {
-	immutable bool bisectable;
 	mixin DigitalNetFunctions!(U, Size);
 	const U[] shift;
 	this (in U[][] basis, Precision precision = Precision(U.sizeof << 3))
