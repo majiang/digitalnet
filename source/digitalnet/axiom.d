@@ -10,7 +10,7 @@ enum hasDimensionR(S) = hasMember!(S, "dimensionR");
 
 enum hasDimensionF2(S) = hasMember!(S, "dimensionF2");
 
-enum bisectable(S) = is (typeof (
+enum isBisectable(S) = is (typeof (
 {
 	S P;
 	if (P.bisectable)
