@@ -1,0 +1,14 @@
+{
+	"name": "nonbisectable-pointset",
+	"description": "To test integral(non-biscetable case).",
+	"copyright": "Copyright (c) 2015, Ryuichi OHORI",
+	"authors": ["Ryuichi OHORI"],
+	"dependencies":
+	{
+		"digitalnet":
+		{
+			"version": "~>0.0",
+			"path": "../../"
+		}
+	}
+}
