@@ -2,3 +2,8 @@
 *.lib
 .dub
 *.lst
+
+*.html
+!docs/implementation.html
+!docs/integration.html
+!docs/axiom.html

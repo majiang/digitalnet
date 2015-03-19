@@ -6,7 +6,7 @@ import std.range : ElementType;
 import std.typecons : Flag;
 alias Centering = Flag!"centering";
 
-auto _integral(Centering centering=Centering.yes, S, Function)(S P, Function f)
+private auto _integral(Centering centering=Centering.yes, S, Function)(S P, Function f)
 	if (isPointSet!S && hasPrecision!S && hasDimensionR!S &&
 		isArray!(ParameterTypeTuple!Function) && isFloatingPoint!(ElementType!(ParameterTypeTuple!Function)))
 {
@@ -18,6 +18,7 @@ auto _integral(Centering centering=Centering.yes, S, Function)(S P, Function f)
 	return result * exp2(-cast(ptrdiff_t)P.dimensionF2);
 }
 
+/// Calculate the integral of a function.
 auto integral(Centering centering=Centering.yes, S, Function)(S P, Function f)
 	if (isPointSet!S && hasPrecision!S && hasDimensionR!S
 	 && isArray!(ParameterTypeTuple!Function) && isFloatingPoint!(ElementType!(ParameterTypeTuple!Function))
@@ -27,6 +28,7 @@ auto integral(Centering centering=Centering.yes, S, Function)(S P, Function f)
 	return _integral!(centering, S, Function)(P, f);
 }
 
+/// ditto
 auto integral(Centering centering=Centering.yes, S, Function)(S P, Function f)
 	if (isPointSet!S && hasPrecision!S && hasDimensionR!S
 	 && isArray!(ParameterTypeTuple!Function) && isFloatingPoint!(ElementType!(ParameterTypeTuple!Function))
@@ -40,6 +42,7 @@ auto integral(Centering centering=Centering.yes, S, Function)(S P, Function f)
 	        integral!(centering, S, Function)(Q[1], f)) / 2;
 }
 
+/// Generate points in the hypercube from a digital net.
 auto toReals(F, Centering centering=Centering.yes, S)(S P)
 	if (isFloatingPoint!F && isPointSet!S && hasPrecision!S && hasDimensionR!S)
 {
