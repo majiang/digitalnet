@@ -5,6 +5,8 @@ import std.traits, std.algorithm, std.array, std.range, std.typecons, std.random
 import std.conv : to;
 debug import std.stdio;
 
+alias LinearScramble = Tuple!(size_t[], size_t);
+
 static assert (isPointSet!(DigitalNet!uint));
 static assert (hasPrecision!(DigitalNet!uint));
 static assert (isPointSet!(ShiftedDigitalNet!uint));
@@ -43,11 +45,31 @@ mixin template DigitalNetFunctions(U, Size)
 		}
 		front[] ^= basis[position.bottom_zeros][];
 	}
-	private Size position;
-	string _toString()
+private:
+	Size position;
+	string _toString() const
 	{
 		return "%d %d %d %(%(%d %) %)".format(precision, dimensionF2, dimensionR, basis);
 	}
+}
+
+private U[] scramble(U)(in U[] vector, in size_t[] linearScramble, in size_t precision)
+body
+{
+	static if (is (size_t == ulong))
+		enum p = 6, q = 63;
+	static if (is (size_t == uint))
+		enum p = 5, q = 31;
+	auto ret = vector.dup;
+	size_t idx;
+	foreach (i, ref x; ret)
+		foreach (j; 1..precision)
+			foreach (U k; 0..j)
+			{
+				x ^= ((linearScramble[idx >> p] >> (idx & q)) & (x >> j) & 1) << k;
+				idx += 1;
+			}
+	return ret;
 }
 
 /// A digital net.
@@ -69,7 +91,15 @@ struct DigitalNet(U = uint, Size = GreaterInteger!U)
 		auto former = ShiftedDigitalNet!(U, Size)(this.basis[1..$], new U[this.dimensionR], Precision(this.precision));
 		return [former, former + this.basis[0]];
 	}
-	alias toString = _toString;
+	public string toString() const
+	{
+		return _toString();
+	}
+	DigitalNet!(U, Size) opBinary(string op)(in LinearScramble linearScramble) const
+		if (op == "*")
+	{
+		return DigitalNet!(U, Size)(basis.map!(b => b.scramble(linearScramble[0], precision)).array, Precision(precision));
+	}
 }
 
 /// A digitally shifted digital net.
@@ -113,9 +143,14 @@ struct ShiftedDigitalNet(U = uint, Size = GreaterInteger!U)
 		auto former = ShiftedDigitalNet!(U, Size)(this.basis[1..$], this.shift, Precision(this.precision));
 		return [former, former + this.basis[0]];
 	}
-	string toString()
+	string toString() const
 	{
 		return _toString() ~ " %(%d %)".format(shift);
+	}
+	ShiftedDigitalNet!(U, Size) opBinary(string op)(in LinearScramble linearScramble) const
+		if (op == "*")
+	{
+		return ShiftedDigitalNet!(U, Size)(basis.map!(b => b.scramble(linearScramble[0], precision)).array, shift.scramble(linearScramble[0], precision), Precision(precision));
 	}
 }
 
@@ -183,15 +218,15 @@ template GreaterInteger(U)
 		alias GreaterInteger = BigInt;
 }
 
-immutable size_t getPrecision(Precision n)
+immutable(size_t) getPrecision(Precision n)
 {
 	return cast(size_t)n;
 }
-immutable size_t getDimensionR(DimensionR s)
+immutable(size_t) getDimensionR(DimensionR s)
 {
 	return cast(size_t)s;
 }
-immutable size_t getDimensionF2(DimensionF2 m)
+immutable(size_t) getDimensionF2(DimensionF2 m)
 {
 	return cast(size_t)m;
 }
@@ -224,6 +259,19 @@ U[] randomDigitalShift(U)(Precision precision, DimensionR dimensionR)
 {
 	return randomVector!U(precision.getPrecision, dimensionR.getDimensionR);
 }
+
+auto randomLinearScramble(S)(S P)
+	if (is (S == DigitalNet!(U, Size), U, Size) ||
+		is (S == ShiftedDigitalNet!(U, Size), U, Size))
+{
+	immutable size_t
+		wordSize = size_t.sizeof << 3,
+		numBits = P.dimensionR * (P.precision * (P.precision - 1) / 2),
+		backLength = numBits / wordSize + (numBits % wordSize ? 1 : 0);
+	import std.bitmanip : BitArray;
+	return LinearScramble(randomVector!size_t(wordSize, backLength), numBits);
+}
+
 
 private:
 

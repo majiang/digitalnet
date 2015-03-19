@@ -1,0 +1,12 @@
+{
+	"name": "read-scramble-write",
+	"description": "Read a digital net from standard input, apply a random linear scramble, and write to standard output.",
+	"dependencies":
+	{
+		"digitalnet":
+		{
+			"version": "~>0.3",
+			"path": "../../"
+		}
+	}
+}
