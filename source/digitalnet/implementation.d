@@ -77,6 +77,7 @@ struct DigitalNet(U = uint, Size = GreaterInteger!U)
 	if (isUnsigned!U)
 {
 	mixin DigitalNetFunctions!(U, Size);
+	/// Apply a Digital shift.
 	ShiftedDigitalNet!(U, Size) opBinary(string op)(in U[] shift) const
 		if (op == "+")
 	{
@@ -95,6 +96,7 @@ struct DigitalNet(U = uint, Size = GreaterInteger!U)
 	{
 		return _toString();
 	}
+	/// Apply a linear scramble.
 	DigitalNet!(U, Size) opBinary(string op)(in LinearScramble linearScramble) const
 		if (op == "*")
 	{
@@ -126,6 +128,7 @@ struct ShiftedDigitalNet(U = uint, Size = GreaterInteger!U)
 		this.shift = shift;
 		this.front[] = shift[];
 	}
+	/// Apply a digital shift.
 	ShiftedDigitalNet!(U, Size) opBinary(string op)(in U[] shift) const
 		if (op == "+")
 	{
@@ -134,6 +137,7 @@ struct ShiftedDigitalNet(U = uint, Size = GreaterInteger!U)
 			s = this.shift[i] ^ shift[i];
 		return ShiftedDigitalNet!(U, Size)(basis, newShift, Precision(precision));
 	}
+	/// Remove a digital shift.
 	DigitalNet!(U, Size) removeShift() const
 	{
 		return DigitalNet!(U, Size)(basis, Precision(precision));
@@ -147,6 +151,7 @@ struct ShiftedDigitalNet(U = uint, Size = GreaterInteger!U)
 	{
 		return _toString() ~ " %(%d %)".format(shift);
 	}
+	/// Apply a linear scramble.
 	ShiftedDigitalNet!(U, Size) opBinary(string op)(in LinearScramble linearScramble) const
 		if (op == "*")
 	{
@@ -237,6 +242,7 @@ alias DimensionR = Typedef!(size_t, 0, "dimR");
 
 alias DimensionF2 = Typedef!(size_t, 0, "dimB");
 
+/// Construct a digital net by uniform random choice of its basis.
 DigitalNet!U randomDigitalNet(U = uint)(Precision precision, DimensionR dimensionR, DimensionF2 dimensionF2)
 	if (isUnsigned!U)
 {
@@ -245,21 +251,22 @@ DigitalNet!U randomDigitalNet(U = uint)(Precision precision, DimensionR dimensio
 	return DigitalNet!U(basis, precision);
 }
 
-U[] randomDigitalShift(U, Size)(DigitalNet!(U, Size) P)
+/// Uniformly and randomly pick a digital shift.
+auto randomDigitalShift(S)(S P)
+	if (is (S == DigitalNet!(U, Size), U, Size) || is (S == ShiftedDigitalNet!(U, Size), U, Size))
 {
-	return randomVector!U(P.precision, P.dimensionR);
-}
-U[] randomDigitalShift(U, Size)(ShiftedDigitalNet!(U, Size) P)
-{
+	alias U = ElementType!(typeof (P.front));
 	return randomVector!U(P.precision, P.dimensionR);
 }
 
+/// ditto
 U[] randomDigitalShift(U)(Precision precision, DimensionR dimensionR)
 	if (isUnsigned!U)
 {
 	return randomVector!U(precision.getPrecision, dimensionR.getDimensionR);
 }
 
+/// Uniformly and randomly pick a linear scramble.
 auto randomLinearScramble(S)(S P)
 	if (is (S == DigitalNet!(U, Size), U, Size) ||
 		is (S == ShiftedDigitalNet!(U, Size), U, Size))
