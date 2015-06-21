@@ -5,6 +5,7 @@ import std.traits, std.algorithm, std.array, std.range, std.typecons, std.random
 import std.conv : to;
 debug import std.stdio;
 
+///
 alias LinearScramble = Tuple!(size_t[], size_t);
 
 static assert (isPointSet!(DigitalNet!uint));
@@ -12,6 +13,7 @@ static assert (hasPrecision!(DigitalNet!uint));
 static assert (isPointSet!(ShiftedDigitalNet!uint));
 static assert (hasPrecision!(ShiftedDigitalNet!uint));
 
+///
 mixin template DigitalNetFunctions(U, Size)
 {
 	const U[][] basis;
@@ -77,7 +79,7 @@ struct DigitalNet(U = uint, Size = GreaterInteger!U)
 	if (isUnsigned!U)
 {
 	mixin DigitalNetFunctions!(U, Size);
-	/// Apply a Digital shift.
+	/// Apply a digital shift.
 	ShiftedDigitalNet!(U, Size) opBinary(string op)(in U[] shift) const
 		if (op == "+")
 	{
@@ -187,7 +189,6 @@ private U[][] noShift(U)(U[][] basis, in size_t dimB)
 	assert (false);
 }
 
-
 private U[][] readDigitalNetParams(U)(const(char)[][] buf, out size_t prec, out size_t dimB, out size_t dimR)
 {
 	prec = buf[0].to!size_t;
@@ -213,6 +214,7 @@ ShiftedDigitalNet!U toShiftedDigitalNet(U = uint)(const(char)[] x)
 	return ShiftedDigitalNet!U(basis, shift, Precision(prec));
 }
 
+///
 template GreaterInteger(U)
 	if (isUnsigned!U)
 {
@@ -236,10 +238,13 @@ immutable(size_t) getDimensionF2(DimensionF2 m)
 	return cast(size_t)m;
 }
 
+///
 alias Precision = Typedef!(size_t, 0, "prec");
 
+///
 alias DimensionR = Typedef!(size_t, 0, "dimR");
 
+///
 alias DimensionF2 = Typedef!(size_t, 0, "dimB");
 
 /// Construct a digital net by uniform random choice of its basis.
@@ -279,17 +284,17 @@ auto randomLinearScramble(S)(S P)
 	return LinearScramble(randomVector!size_t(wordSize, backLength), numBits);
 }
 
+/// Shuffle the basis of a digital net.
 DigitalNet!(U, Size) shuffle(U, Size)(DigitalNet!(U, Size) P)
 {
 	auto b = P.basis.map!(a => a.to!(U[])).array;
-	shuffleBasis(b);
+	b.shuffleBasis;
 	return DigitalNet!(U, Size)(b, Precision(P.precision));
 }
 
-void shuffleBasis(U)(U[][] basis)
+/// Partially shuffle a sequence of vectors.
+void partialShuffleBasis(U)(U[][] basis)
 {
-	if (basis.length == 1)
-		return;
 	import std.random;
 	auto i = 0.uniform(basis.length);
 	swap(basis[0], basis[i]);
@@ -297,9 +302,26 @@ void shuffleBasis(U)(U[][] basis)
 	foreach (k, b; basis[1..$])
 		if (j >> k & 1)
 			basis[0][] ^= b[];
+}
+
+/// Shuffle a sequence of vectors.
+void shuffleBasis(U)(U[][] basis)
+{
+	if (basis.length == 1)
+		return;
+	basis.partialShuffleBasis;
 	basis[1..$].shuffleBasis;
 }
 
+/** Obtain another digital net Q from a digital net P where dim P = 1 + dim(P cap Q) = dim Q.
+*/
+DigitalNet!(U, Size) changeVectorOfBasis(U, Size)(DigitalNet!(U, Size) P)
+{
+	auto b = P.basis.map!(a => a.to!(U[])).array;
+	b.partialShuffleBasis;
+	b[0] = randomDigitalShift(P);
+	return DigitalNet!(U, Size)(b, Precision(P.precision));
+}
 
 private:
 
