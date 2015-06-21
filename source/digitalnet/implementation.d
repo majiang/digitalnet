@@ -279,6 +279,27 @@ auto randomLinearScramble(S)(S P)
 	return LinearScramble(randomVector!size_t(wordSize, backLength), numBits);
 }
 
+DigitalNet!(U, Size) shuffle(U, Size)(DigitalNet!(U, Size) P)
+{
+	auto b = P.basis.map!(a => a.to!(U[])).array;
+	shuffleBasis(b);
+	return DigitalNet!(U, Size)(b, Precision(P.precision));
+}
+
+void shuffleBasis(U)(U[][] basis)
+{
+	if (basis.length == 1)
+		return;
+	import std.random;
+	auto i = 0.uniform(basis.length);
+	swap(basis[0], basis[i]);
+	auto j = 0.uniform(1 << (basis.length - 1));
+	foreach (k, b; basis[1..$])
+		if (j >> k & 1)
+			basis[0][] ^= b[];
+	basis[1..$].shuffleBasis;
+}
+
 
 private:
 
