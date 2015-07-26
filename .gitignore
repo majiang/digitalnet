@@ -2,6 +2,7 @@
 *.lib
 .dub
 *.lst
+dub.selections.json
 
 *.html
 !docs/implementation.html
