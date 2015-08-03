@@ -181,6 +181,7 @@ private U[][] noShift(U)(U[][] basis, in size_t dimB)
 {
 	if (basis.length == dimB + 1)
 	{
+		import std.stdio : stderr;
 		stderr.writefln("run-time warning: ignoring shift, [%(%d %)]", basis[dimB..$][0]);
 		return basis[0..$-1];
 	}
